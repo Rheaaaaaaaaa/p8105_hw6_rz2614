@@ -1,0 +1,28 @@
+---
+title: "hw6"
+author: "Ruihan Zhang"
+date: "2022-11-30"
+output: github_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(viridis)
+library(dplyr)
+library(purrr)
+library(broom)
+```
+
+```{r}
+homicide= read_csv("./data/homicide-data.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(city_state = str_c(city,", ",state)) %>% 
+  mutate(homicide = case_when(disposition == "Closed without arrest" ~ 'not solved',
+                           disposition == 'Closed by arrest' ~ 'solved',
+                           disposition == 'Open/No arrest' ~ 'solved')
+  )
+```
+
