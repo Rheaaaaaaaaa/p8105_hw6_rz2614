@@ -23,6 +23,13 @@ homicide= read_csv("./data/homicide-data.csv") %>%
   mutate(homicide = case_when(disposition == "Closed without arrest" ~ 'not solved',
                            disposition == 'Closed by arrest' ~ 'solved',
                            disposition == 'Open/No arrest' ~ 'solved')
-  )
+  ) %>% 
+  filter(city_state != "Dallas, TX",
+         city_state != "Phoenix, AZ",
+         city_state != "Kansas City, MO",
+         city_state != "Tulsa, AL",
+         ) %>% 
+  filter(victim_race == "White" | victim_race == "Black") %>% 
+  mutate(., victim_age = as.numeric(victim_age))
 ```
 
