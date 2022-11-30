@@ -20,9 +20,9 @@ library(broom)
 homicide= read_csv("./data/homicide-data.csv") %>% 
   janitor::clean_names() %>% 
   mutate(city_state = str_c(city,", ",state)) %>% 
-  mutate(homicide = case_when(disposition == "Closed without arrest" ~ 'not solved',
-                           disposition == 'Closed by arrest' ~ 'solved',
-                           disposition == 'Open/No arrest' ~ 'solved')
+  mutate(outcome = case_when(disposition == "Closed without arrest" ~ '0',
+                           disposition == 'Closed by arrest' ~ '1',
+                           disposition == 'Open/No arrest' ~ '1')
   ) %>% 
   filter(city_state != "Dallas, TX",
          city_state != "Phoenix, AZ",
@@ -32,4 +32,26 @@ homicide= read_csv("./data/homicide-data.csv") %>%
   filter(victim_race == "White" | victim_race == "Black") %>% 
   mutate(., victim_age = as.numeric(victim_age))
 ```
+
+```{r}
+Baltimore = homicide %>% 
+  filter(city_state == "Baltimore, MD") %>% 
+  mutate(outcome = as.numeric(outcome))
+  
+```
+
+```{r}
+sink("fit.txt")
+ fit = glm(formula = outcome~victim_race+victim_age+victim_sex, family = binomial(), data = Baltimore)
+ print(fit)
+ sink()
+```
+
+
+```{r}
+fit %>%  broom::tidy()
+```
+
+
+
 
