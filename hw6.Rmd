@@ -14,15 +14,18 @@ library(viridis)
 library(dplyr)
 library(purrr)
 library(broom)
+library(p8105.datasets)
+
+set.seed(1)
+
 ```
 
 ```{r}
 homicide= read_csv("./data/homicide-data.csv") %>% 
   janitor::clean_names() %>% 
   mutate(city_state = str_c(city,", ",state)) %>% 
-  mutate(outcome = case_when(disposition == "Closed without arrest" ~ '0',
-                           disposition == 'Closed by arrest' ~ '1',
-                           disposition == 'Open/No arrest' ~ '1')
+  mutate(outcome = case_when(disposition == "Closed without arrest" ~ 'not solved',
+                           disposition == 'Closed by arrest' ~ 'solved')
   ) %>% 
   filter(city_state != "Dallas, TX",
          city_state != "Phoenix, AZ",
@@ -36,6 +39,8 @@ homicide= read_csv("./data/homicide-data.csv") %>%
 ```{r}
 Baltimore = homicide %>% 
   filter(city_state == "Baltimore, MD") %>% 
+  mutate(outcome = case_when(outcome ==  'not solved' ~ "0",
+                           outcome ==  'solved' ~ "1")) %>% 
   mutate(outcome = as.numeric(outcome))
   
 ```
@@ -49,7 +54,10 @@ sink("fit.txt")
 
 
 ```{r}
-fit %>%  broom::tidy()
+fit %>%  broom::tidy() %>% 
+  mutate(OR = exp(estimate)) %>%
+  select(term, log_OR = estimate, OR) %>% 
+  knitr::kable(digits = 3)
 ```
 
 

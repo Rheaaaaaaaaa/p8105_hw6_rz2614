@@ -1,13 +1,12 @@
 
-Call:  glm(formula = outcome ~ factor(victim_race) + victim_age + factor(victim_sex), 
+Call:  glm(formula = outcome ~ victim_race + victim_age + victim_sex, 
     family = binomial(), data = Baltimore)
 
 Coefficients:
-             (Intercept)  factor(victim_race)White                victim_age  
-                 2.47310                  -0.16097                  -0.00562  
-  factor(victim_sex)Male  
-                 0.65203  
+     (Intercept)  victim_raceWhite        victim_age    victim_sexMale  
+        1.971278          0.256058         -0.007598          0.131936  
 
-Degrees of Freedom: 2752 Total (i.e. Null);  2749 Residual
-Null Deviance:	    1159 
-Residual Deviance: 1150 	AIC: 1158
+Degrees of Freedom: 1114 Total (i.e. Null);  1111 Residual
+  (1638 observations deleted due to missingness)
+Null Deviance:	    876.9 
+Residual Deviance: 874.8 	AIC: 882.8
