@@ -125,7 +125,7 @@ city_plot=city_fm %>%
                
   
 ```
-mutate(text_label = str_c("lower interval: ", lower_ci, " upper interval: ", upper_ci, " odds ratio: ", OR)) %>%plot_ly(y = ~OR, x = ~city_state, type = "bar",  text = ~text_label)
+
 ```{r}
 birthweight = read_csv("./data/birthweight.csv") %>% 
   janitor::clean_names() %>% 
@@ -140,7 +140,7 @@ birthweight = read_csv("./data/birthweight.csv") %>%
 fit1 = lm(bwt ~  smoken + fincome + wtgain, data = birthweight) 
 ```
 ```{r}
-birthweight %>% 
+birthweight_plot = birthweight %>% 
   add_predictions(fit1) %>% 
   add_residuals(fit1) %>% 
   ggplot(aes(x = pred, y = resid)) +
@@ -152,5 +152,38 @@ birthweight %>%
 ```{r}
 fit2 = lm(bwt ~ blength + gaweeks, data = birthweight)
 fit3 = lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = birthweight)
+```
+
+```{r}
+compare =
+  crossv_mc(birthweight, 100) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+```
+
+```{r}
+compare = 
+  compare %>% 
+  mutate(
+    fit1  = map(train, ~lm(bwt ~  smoken + fincome + wtgain, data = .x)),
+    fit2     = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+    fit3  = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data =.x))) %>% 
+  mutate(
+    rmse_model1 = map2_dbl(fit1, test, ~rmse(model = .x, data = .y)),
+    rmse_model2    = map2_dbl(fit2, test, ~rmse(model = .x, data = .y)),
+    rmse_model3 = map2_dbl(fit3, test, ~rmse(model = .x, data = .y)))
+```
+
+```{r}
+compare_plot=  compare%>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
 
