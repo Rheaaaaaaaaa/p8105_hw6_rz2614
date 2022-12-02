@@ -14,7 +14,6 @@ library(viridis)
 library(dplyr)
 library(purrr)
 library(broom)
-library(p8105.datasets)
 library(plotly)
 library(modelr)
 library(mgcv)
@@ -122,7 +121,7 @@ city_plot=city_fm %>%
   labs(title = "odds ratio and confidence intervals for each city", 
        y = "odds ratio", 
        x = "city_state ")+theme(axis.text.x = element_text(angle = 90, vjust = 0.2, hjust = 1))
-               
+city_plot               
   
 ```
 
@@ -145,6 +144,7 @@ birthweight_plot = birthweight %>%
   add_residuals(fit1) %>% 
   ggplot(aes(x = pred, y = resid)) +
   geom_point(alpha = .5)
+birthweight_plot
 ```
 
 
@@ -185,5 +185,6 @@ compare_plot=  compare%>%
     names_prefix = "rmse_") %>% 
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
+compare_plot
 ```
 
