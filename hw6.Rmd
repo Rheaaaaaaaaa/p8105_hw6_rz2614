@@ -135,7 +135,7 @@ birthweight = read_csv("./data/birthweight.csv") %>%
          malform = as.factor(malform),
          mrace = as.factor(mrace))
 ```
-
+New York has the lowest odds ratio, and Albuquerque has the highest odd ratio.The odds ratio of most cities are below 1, which means that compared to homicide cases of female, that of male victims has smaller odds ratio of being solved. Overall, there are more unsolved homicide cases associated with males than females.
 ```{r}
 fit1 = lm(bwt ~  smoken + fincome + wtgain, data = birthweight) 
 ```
