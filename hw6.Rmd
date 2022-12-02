@@ -16,6 +16,8 @@ library(purrr)
 library(broom)
 library(p8105.datasets)
 library(plotly)
+library(modelr)
+library(mgcv)
 
 set.seed(1)
 
@@ -132,5 +134,23 @@ birthweight = read_csv("./data/birthweight.csv") %>%
          frace = as.factor(frace),
          malform = as.factor(malform),
          mrace = as.factor(mrace))
+```
+
+```{r}
+fit1 = lm(bwt ~  smoken + fincome + wtgain, data = birthweight) 
+```
+```{r}
+birthweight %>% 
+  add_predictions(fit1) %>% 
+  add_residuals(fit1) %>% 
+  ggplot(aes(x = pred, y = resid)) +
+  geom_point(alpha = .5)
+```
+
+
+
+```{r}
+fit2 = lm(bwt ~ blength + gaweeks, data = birthweight)
+fit3 = lm(bwt ~ bhead + blength + babysex + bhead*blength*babysex, data = birthweight)
 ```
 
