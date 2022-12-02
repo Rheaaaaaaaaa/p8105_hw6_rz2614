@@ -15,6 +15,7 @@ library(dplyr)
 library(purrr)
 library(broom)
 library(p8105.datasets)
+library(plotly)
 
 set.seed(1)
 
@@ -25,7 +26,8 @@ homicide= read_csv("./data/homicide-data.csv") %>%
   janitor::clean_names() %>% 
   mutate(city_state = str_c(city,", ",state)) %>% 
   mutate(outcome = case_when(disposition == "Closed without arrest" ~ 'not solved',
-                           disposition == 'Closed by arrest' ~ 'solved')
+                           disposition == 'Closed by arrest' ~ 'solved',
+                           disposition == "Open/No arrest" ~ 'not solved')
   ) %>% 
   filter(city_state != "Dallas, TX",
          city_state != "Phoenix, AZ",
@@ -54,12 +56,64 @@ sink("fit.txt")
 
 
 ```{r}
-fit %>%  broom::tidy() %>% 
-  mutate(OR = exp(estimate)) %>%
-  select(term, log_OR = estimate, OR) %>% 
+mf = fit %>%  broom::tidy() %>% 
+  mutate(
+    OR = exp(estimate),
+    lower_ci = exp(estimate - 1.96 * std.error),
+    upper_ci = exp(estimate + 1.96 * std.error)
+  ) %>% 
+  select(term, estimate, OR, lower_ci,upper_ci ) %>% 
   knitr::kable(digits = 3)
+
+mf
 ```
 
 
 
+
+```{r}
+city_nest = homicide %>% 
+  select(city_state, victim_race, victim_age, victim_sex, outcome) %>% 
+  mutate(outcome = case_when(outcome ==  'not solved' ~ "0",
+                           outcome ==  'solved' ~ "1")) %>% 
+  mutate(outcome = as.numeric(outcome)) %>% 
+  nest(data = victim_race:outcome)
+```
+
+```{r}
+city_nest %>% pull(data)
+```
+
+```{r}
+city = unnest(city_nest, cols = data)
+```
+
+```{r}
+
+glm_function = function(x)
+   { glm(formula = outcome~victim_race+victim_age+victim_sex, family = binomial(), data = x) %>%  broom::tidy() %>%  
+    tibble(OR = estimate, lower_ci = exp(estimate - 1.96 * std.error),upper_ci = exp(estimate + 1.96 * std.error)) %>% 
+    select(term, estimate, OR, lower_ci,upper_ci ) 
+      
+}
+```
+
+```{r}
+nest_city = city_nest %>% 
+  mutate(models = map(data, glm_function)) %>% 
+  unnest(models)
+```
+
+```{r}
+city_fm = nest_city %>% 
+  select(city_state,term,OR, lower_ci,upper_ci) %>% 
+  filter(term == "victim_sexMale") 
+```
+
+```{r}
+city_plot=city_fm %>% 
+  mutate(city_state = fct_reorder(city_state, OR)) %>% 
+  mutate(text_label = str_c("lower interval: ", lower_ci, " upper interval: ", upper_ci, " odds ratio: ", OR)) %>%
+  plot_ly(y = ~OR, x = ~city_state, type = "bar",  text = ~text_label)
+```
 

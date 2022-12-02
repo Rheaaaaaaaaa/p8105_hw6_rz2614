@@ -4,9 +4,8 @@ Call:  glm(formula = outcome ~ victim_race + victim_age + victim_sex,
 
 Coefficients:
      (Intercept)  victim_raceWhite        victim_age    victim_sexMale  
-        1.971278          0.256058         -0.007598          0.131936  
+        0.309981          0.841756         -0.006727         -0.854463  
 
-Degrees of Freedom: 1114 Total (i.e. Null);  1111 Residual
-  (1638 observations deleted due to missingness)
-Null Deviance:	    876.9 
-Residual Deviance: 874.8 	AIC: 882.8
+Degrees of Freedom: 2752 Total (i.e. Null);  2749 Residual
+Null Deviance:	    3568 
+Residual Deviance: 3493 	AIC: 3501
