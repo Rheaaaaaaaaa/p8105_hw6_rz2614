@@ -92,7 +92,7 @@ city = unnest(city_nest, cols = data)
 
 glm_function = function(x)
    { glm(formula = outcome~victim_race+victim_age+victim_sex, family = binomial(), data = x) %>%  broom::tidy() %>%  
-    tibble(OR = estimate, lower_ci = exp(estimate - 1.96 * std.error),upper_ci = exp(estimate + 1.96 * std.error)) %>% 
+    tibble(OR = exp(estimate), lower_ci = exp(estimate - 1.96 * std.error),upper_ci = exp(estimate + 1.96 * std.error)) %>% 
     select(term, estimate, OR, lower_ci,upper_ci ) 
       
 }
@@ -113,7 +113,24 @@ city_fm = nest_city %>%
 ```{r}
 city_plot=city_fm %>% 
   mutate(city_state = fct_reorder(city_state, OR)) %>% 
-  mutate(text_label = str_c("lower interval: ", lower_ci, " upper interval: ", upper_ci, " odds ratio: ", OR)) %>%
-  plot_ly(y = ~OR, x = ~city_state, type = "bar",  text = ~text_label)
+  
+  ggplot(aes(x = city_state, y = OR))+
+  geom_point()+
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci))+
+  labs(title = "odds ratio and confidence intervals for each city", 
+       y = "odds ratio", 
+       x = "city_state ")+theme(axis.text.x = element_text(angle = 90, vjust = 0.2, hjust = 1))
+               
+  
+```
+mutate(text_label = str_c("lower interval: ", lower_ci, " upper interval: ", upper_ci, " odds ratio: ", OR)) %>%plot_ly(y = ~OR, x = ~city_state, type = "bar",  text = ~text_label)
+```{r}
+birthweight = read_csv("./data/birthweight.csv") %>% 
+  janitor::clean_names() %>% 
+  na.omit() %>% 
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace))
 ```
 
